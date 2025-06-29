@@ -205,6 +205,7 @@ public class AccountController(
             return View(new UserRegisterViewModel());
         }
 
+        //TODO: Describe nethod
         [HttpPost]
         public async Task<IActionResult> RegisterUser(UserRegisterViewModel model)
         {
