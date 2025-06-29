@@ -1,0 +1,96 @@
+﻿@model IEnumerable<SantaFeWaterSystem.Models.Feedback>
+
+@{
+    ViewData["Title"] = "My Feedbacks";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0d6efd;
+        margin: 30px 0 20px;
+        border-left: 5px solid #0d6efd;
+        padding-left: 12px;
+    }
+
+    .table-feedback td, .table-feedback th {
+        vertical-align: middle;
+        padding: 12px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    @@media (max-width: 576px) {
+        .page-title
+
+    {
+        font-size: 1.5rem;
+    }
+
+    .table-feedback td, .table-feedback th {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    }
+</style>
+
+<h2 class="page-title">⭐ @ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You have not submitted any feedback yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-feedback">
+            <thead class="table-light">
+                <tr>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Submitted At</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fb in Model)
+                {
+                    <tr>
+                        <td>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= fb.Rating)
+                                {
+                                    <span class="text-warning">&#9733;</span> @* filled star *@
+                                }
+                                else
+                                {
+                                    <span class="text-muted">&#9734;</span> @* empty star *@
+                                }
+                            }
+                        </td>
+                        <td>@fb.Comment</td>
+                        <td>@fb.SubmittedAt.ToString("g")</td>
+                        <td>
+                            @if (fb.Status == "Read")
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Read</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger"><i class="bi bi-envelope-fill"></i> Unread</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

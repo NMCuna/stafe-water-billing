@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Payment Confirmation";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+
+    var culture = new System.Globalization.CultureInfo("en-PH");
+
+    string transactionId = ViewBag.TransactionId ?? "N/A";
+    string method = ViewBag.Method ?? "N/A";
+    string date = ViewBag.Date ?? "N/A";
+
+    string amountPaidFormatted = "₱0.00";
+    decimal amountPaid = 0; // ✅ Initialize the variable
+
+    if (ViewBag.AmountPaid != null && decimal.TryParse(ViewBag.AmountPaid.ToString(), out amountPaid))
+    {
+        amountPaidFormatted = amountPaid.ToString("C", culture);
+    }
+}
+
+@section Styles {
+    <style>
+        .confirmation-container {
+            background: linear-gradient(to bottom right, #e9f7ef, #fefefe);
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .confirmation-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #28a745;
+            text-shadow: 0 0 10px rgba(40, 167, 69, 0.7), 0 0 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .confirmation-card {
+            border-left: 5px solid #28a745;
+            border-radius: 10px;
+        }
+
+            .confirmation-card .card-body p {
+                font-size: 1.1rem;
+                margin-bottom: 0.6rem;
+            }
+
+        .lead-text {
+            font-size: 1.25rem;
+            color: #555;
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 12px rgba(0, 123, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+            .btn-glow:hover {
+                box-shadow: 0 0 20px rgba(0, 123, 255, 1);
+                transform: scale(1.03);
+            }
+    </style>
+}
+
+<div class="container my-5">
+    <div class="confirmation-container text-center mx-auto" style="max-width: 600px;">
+        <h2 class="confirmation-title mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i> Payment Submitted
+        </h2>
+        <p class="lead-text mb-4">Your payment has been successfully submitted and is pending verification.</p>
+
+        <div class="card confirmation-card shadow-sm mx-auto mb-4" style="max-width: 500px;">
+            <div class="card-body text-start">
+                <p><strong>Reference No.:</strong> @transactionId</p>
+                <p><strong>Payment Method:</strong> @method</p>
+                <p><strong>Amount Paid:</strong> @amountPaidFormatted</p>
+                <p><strong>Date:</strong> @date</p>
+            </div>
+        </div>
+
+        <a asp-controller="User" asp-action="Dashboard" class="btn btn-primary btn-lg btn-glow">
+            <i class="bi bi-house-door me-2"></i> Back to Dashboard
+        </a>
+    </div>
+</div>

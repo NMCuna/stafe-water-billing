@@ -1,0 +1,90 @@
+﻿@model SantaFeWaterSystem.ViewModels.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+@section Styles {
+    <link href="~/css/profile.css" rel="stylesheet" asp-append-version="true" />
+}
+
+<h2 class="mb-3 text-primary fw-bold text-center">My Profile <i class="bi bi-person-circle"></i></h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card shadow-sm rounded-3 p-3 mx-auto profile-container">
+    <form asp-action="Profile" method="post" novalidate>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="row g-2">
+            <div class="col-12 col-sm-6">
+                <label asp-for="FullName" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-person-fill text-primary fs-5"></i> Full Name
+                </label>
+                <input asp-for="FullName" class="form-control form-control-sm bg-secondary text-white" readonly />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="Address" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-geo-alt-fill text-primary fs-5"></i> Address
+                </label>
+                <input asp-for="Address" class="form-control form-control-sm bg-secondary text-white" readonly />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="ContactNumber" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-telephone-fill text-primary fs-5"></i> Contact Number
+                </label>
+                <input asp-for="ContactNumber" class="form-control form-control-sm" />
+                <span asp-validation-for="ContactNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                <label asp-for="Email" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-envelope-fill text-primary fs-5"></i> Email
+                </label>
+                <input asp-for="Email" type="email" class="form-control form-control-sm" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="AccountNumber" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-credit-card-2-front-fill text-primary fs-5"></i> Account Number
+                </label>
+                <input asp-for="AccountNumber" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="AccountType" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-card-list text-primary fs-5"></i> Account Type
+                </label>
+                <input asp-for="AccountType" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+
+            <div class="col-12 col-sm-4">
+                <label asp-for="MeterNo" class="form-label d-flex align-items-center gap-1">
+                    <i class="bi bi-speedometer2 text-primary fs-5"></i> Meter No.
+                </label>
+                <input asp-for="MeterNo" class="form-control form-control-sm bg-secondary text-white" readonly />
+            </div>
+        </div>
+
+
+        <div class="d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-primary btn-sm px-4">
+                <i class="bi bi-save2-fill me-1"></i> Update Profile
+            </button>
+        </div>
+    </form>
+</div>
+
+
+   

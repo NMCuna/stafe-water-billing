@@ -1,0 +1,154 @@
+﻿@model TwoFactorSetupViewModel
+@{
+    ViewData["Title"] = "Enable 2FA";
+    Layout = "_AccountLayout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/twofa.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #212529;
+        }
+
+        .twofa-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 550px;
+            margin: 3rem auto;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .close-home-btn-inside {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2rem;
+            color: #ff4d4d;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 10;
+            text-shadow: 0 0 6px rgba(255, 77, 77, 0.6);
+            transition: transform 0.2s ease, color 0.3s ease;
+        }
+
+            .close-home-btn-inside:hover {
+                color: #fff;
+                transform: scale(1.2);
+                text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 20px rgba(255, 77, 77, 0.9);
+            }
+
+        .qr-image {
+            max-width: 200px;
+            margin: auto;
+            display: block;
+        }
+
+        .instruction-icon {
+            color: #0d6efd;
+            margin-right: 0.5rem;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .twofa-title {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        window.onload = function () {
+            const modal = new bootstrap.Modal(document.getElementById('twoFAReminderModal'));
+            modal.show();
+        };
+    </script>
+}
+
+<!-- ✖️ Home Button -->
+<a href="~/Admin/Dashboard" class="close-home-btn-inside" title="Go to Dashboard">
+    &times;
+</a>
+
+<!-- ⚠️ Reminder Modal -->
+<div class="modal fade" id="twoFAReminderModal" tabindex="-1" aria-labelledby="twoFAReminderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="twoFAReminderModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Important Reminder
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                <p>As an <strong>Admin or Staff</strong>, your access holds critical control over the system.</p>
+                <p>Please enable <strong>Two-Factor Authentication (2FA)</strong> to secure your account.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">
+                    <i class="bi bi-shield-check me-1"></i> I Understand
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🛡️ 2FA Setup Card -->
+<div class="twofa-container">
+    <h2 class="text-center mb-3 twofa-title">
+        <i class="bi bi-shield-lock-fill me-2"></i> Secure Your Account with 2FA
+    </h2>
+
+    <p class="text-center text-muted mb-4">
+        <i class="bi bi-info-circle me-1"></i>
+        2FA helps protect your account by requiring a second step during login.
+    </p>
+
+    <h5 class="mb-3 text-primary">Step-by-Step Setup</h5>
+    <div class="instructions">
+        <ul>
+            <li><i class="bi bi-1-circle-fill instruction-icon"></i> Download <strong>Microsoft Authenticator</strong> or <strong>Google Authenticator</strong>.</li>
+            <li><i class="bi bi-2-circle-fill instruction-icon"></i> Open the app and select "Scan QR Code" or "Enter code manually".</li>
+            <li><i class="bi bi-3-circle-fill instruction-icon"></i> Scan the QR code or use the manual code below.</li>
+            <li><i class="bi bi-4-circle-fill instruction-icon"></i> Enter the 6-digit code from the app.</li>
+        </ul>
+    </div>
+
+    <div class="text-center mt-4">
+        <img src="@Model.QRCodeUrl" alt="QR Code" class="qr-image" />
+        <p class="mt-3"><strong>Manual Code:</strong> <code>@Model.SecretKey</code></p>
+    </div>
+
+    <form asp-action="Setup2FAAdmin" method="post" class="mt-4">
+        @Html.HiddenFor(m => m.UserId)
+        @Html.HiddenFor(m => m.Role)
+        @Html.HiddenFor(m => m.SecretKey)
+        @Html.HiddenFor(m => m.QRCodeUrl)
+
+        <div class="mb-3">
+            <label asp-for="Code" class="form-label">
+                <i class="bi bi-key me-1"></i> 6-digit Code
+            </label>
+            <input asp-for="Code" class="form-control" placeholder="Enter code from app" autocomplete="off" />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-shield-check me-1"></i> Verify & Enable 2FA
+        </button>
+    </form>
+</div>

@@ -1,0 +1,553 @@
+﻿@model SantaFeWaterSystem.ViewModels.UserDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@section Styles {
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        .clickable-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+            .clickable-card:hover {
+                background-color: #f8f9fa;
+            }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .pay-now-btn {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        /* Custom colors for payments */
+        .bg-cash {
+            background-color: #fff3cd !important; /* Light yellow */
+            color: #664d03 !important; /* Dark yellow text */
+        }
+
+        .bg-gcash {
+            background-color: #87ceeb !important; /* Skyblue */
+            color: #0c2340 !important; /* Dark navy text */
+        }
+
+        /* === Dark Mode Styles === */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+            body.dark-mode .card {
+                background-color: #1e1e1e;
+                color: #ccc;
+                border-color: #333;
+            }
+
+            body.dark-mode .card-header {
+                background-color: #292929;
+                border-bottom: 1px solid #444;
+            }
+
+            body.dark-mode .clickable-card {
+                background-color: #2c2c2c;
+                border-color: #444;
+            }
+
+                body.dark-mode .clickable-card:hover {
+                    background-color: #3a3a3a;
+                }
+
+            body.dark-mode .badge-status {
+                opacity: 0.9;
+            }
+
+            body.dark-mode .bg-success {
+                background-color: #198754 !important;
+                color: #d4edda !important;
+            }
+
+            body.dark-mode .bg-danger {
+                background-color: #dc3545 !important;
+                color: #f8d7da !important;
+            }
+
+            body.dark-mode .bg-warning {
+                background-color: #ffc107 !important;
+                color: #212529 !important;
+            }
+
+            body.dark-mode .bg-secondary {
+                background-color: #6c757d !important;
+                color: #e2e3e5 !important;
+            }
+
+            body.dark-mode .btn-primary {
+                background-color: #0d6efd;
+                border-color: #0d6efd;
+            }
+
+            body.dark-mode .btn-outline-primary {
+                color: #0d6efd;
+                border-color: #0d6efd;
+            }
+
+                body.dark-mode .btn-outline-primary:hover {
+                    background-color: #0d6efd;
+                    color: #fff;
+                }
+
+            /* Custom payment method badges */
+            body.dark-mode .bg-cash {
+                background-color: #665c00 !important;
+                color: #fff3cd !important;
+            }
+
+            body.dark-mode .bg-gcash {
+                background-color: #1e90ff !important;
+                color: #cce6ff !important;
+            }
+
+        /* Dark mode toggle button */
+        #darkModeToggle {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode #darkModeToggle {
+            background-color: #444;
+            color: #eee;
+            border-color: #666;
+        }
+
+        .text-danger {
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        @@keyframes blink {
+            50%
+
+        {
+            opacity: 0.6;
+        }
+
+        }
+    </style>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="dashboard-title">Welcome, @Model.Consumer.FirstName!</h2>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold"><i class="bi bi-person-circle me-2"></i>Account Info</div>
+            <div class="card-body">
+                <p><i class="bi bi-credit-card-2-front me-1"></i><strong>Account #:</strong> @(Model.Consumer.User?.AccountNumber ?? "N/A")</p>
+                <p><i class="bi bi-geo-alt me-1"></i><strong>Address:</strong> @Model.Consumer.HomeAddress</p>
+                <p><i class="bi bi-telephone me-1"></i><strong>Phone:</strong> @Model.Consumer.ContactNumber</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+
+    <!-- Recent Bills -->
+    <div class="col">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-receipt-cutoff me-2"></i>Recent Bills</span>
+                @if (Model.RecentBills?.Count > 3)
+                {
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#billsModal">View All</button>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.RecentBills?.Any() == true)
+                {
+                    @foreach (var bill in Model.RecentBills.Take(3))
+                    {
+                        var statusClass = bill.Status switch
+                        {
+                            "Paid" => "bg-success text-white",
+                            "Unpaid" => "bg-danger text-white",
+                            "Pending" => "bg-warning text-dark",
+                            _ => "bg-secondary text-white"
+                        };
+                        <div class="clickable-card d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <div>
+                                    <i class="bi bi-receipt me-1"></i>
+                                    <strong>Bill No:</strong> @bill.BillNo
+                                </div>
+                                <div>
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    <strong>Billing Date:</strong> @bill.BillingDate.ToString("MMM dd, yyyy")
+                                </div>
+                                <div>
+                                    <i class="bi bi-calendar-check me-1"></i>
+                                    <strong>Due Date:</strong> @bill.DueDate.ToString("MMM dd, yyyy")
+                                </div>
+                                <div class="text-muted">
+                                    <i class="bi bi-currency-exchange me-1"></i>
+                                    <strong>Amount Due:</strong> ₱@bill.AmountDue.ToString("N2")
+                                </div>
+                                @if (bill.Penalty > 0)
+                                {
+                                    <div class="text-danger">
+                                        <i class="bi bi-exclamation-circle me-1"></i>
+                                        <strong>Overdue Penalty:</strong> ₱@bill.Penalty.ToString("N2")
+                                    </div>
+                                }
+                                @if ((bill.AdditionalFees ?? 0) > 0)
+                                {
+                                    <div class="text-info">
+                                        <i class="bi bi-plus-circle me-1"></i>
+                                        <strong>Additional Fees:</strong> ₱@bill.AdditionalFees?.ToString("N2")
+                                    </div>
+                                }
+                                @if (bill.Penalty > 0 || (bill.AdditionalFees ?? 0) > 0)
+                                {
+                                    <div class="fw-bold text-primary">
+                                        <i class="bi bi-cash-coin me-1"></i>
+                                        <strong>Total Amount:</strong> ₱@bill.TotalAmount.ToString("N2")
+                                    </div>
+                                }
+
+                                <div class="badge-status @statusClass mt-1">@bill.Status</div>
+                            </div>
+
+                            @if (bill.Status == "Unpaid")
+                            {
+                                <a href="@Url.Action("Pay", "User", new { billId = bill.Id })" class="btn btn-sm btn-primary pay-now-btn">Pay Now</a>
+                            }
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No bills found.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+     
+
+
+    <!-- Recent Payments -->
+    <div class="col">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-wallet2 me-2"></i>Recent Payments</span>
+                @if (Model.RecentPayments?.Count > 3)
+                {
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentsModal">View All</button>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.RecentPayments?.Any() == true)
+                {
+                    @foreach (var p in Model.RecentPayments.Take(3))
+                    {
+                        var methodClass = p.Method switch
+                        {
+                            "Cash" => "bg-cash",
+                            "Gcash" => "bg-gcash",
+                            "Online" => "bg-primary text-white",
+                            "Bank" => "bg-info text-dark",
+                            _ => "bg-secondary text-white"
+                        };
+
+                        var statusClass = p.Billing.Status switch
+                        {
+                            "Paid" => "badge bg-success",
+                            "Pending" => "badge bg-warning text-dark",
+                            "Unpaid" => "badge bg-danger",
+                            _ => "badge bg-secondary"
+                        };
+                        <div class="clickable-card mb-3">
+                            <div class="d-flex justify-content-between">
+                                <div><strong>Bill No:</strong> @p.Billing.BillNo</div>
+                                <span>@p.PaymentDate.ToString("MMM dd, yyyy")</span>
+                                <span class="fw-bold">₱@p.AmountPaid.ToString("N2")</span>
+                            </div>
+                            <div class="badge-status @methodClass mt-1">@p.Method</div>
+                            <div class="mt-1">
+                                <span class="@statusClass">Status: @p.Billing.Status</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No payments recorded.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Support Tickets -->
+    <div class="col">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-life-preserver me-2"></i>Support Tickets</span>
+                @if (Model.RecentSupportTickets?.Count > 1)
+                {
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#supportModal">View All</button>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.RecentSupportTickets?.Any() == true)
+                {
+                    var latestTicket = Model.RecentSupportTickets
+                    .OrderByDescending(t => t.CreatedAt)
+                    .First();
+                    var ticketClass = latestTicket.Status switch
+                    {
+                        "Open" => "bg-warning text-dark",
+                        "Closed" => "bg-success text-white",
+                        _ => "bg-secondary text-white"
+                    };
+
+                    <div class="clickable-card position-relative mb-3"
+                         style="cursor: pointer;"
+                         data-bs-toggle="modal"
+                         data-bs-target="#ticketModal"
+                         onclick="markReplySeen(@latestTicket.Id)">
+
+                        <div class="fw-bold">@latestTicket.Subject</div>
+                        <div class="text-muted small">@latestTicket.CreatedAt.ToString("MMM dd, yyyy")</div>
+                        <div class="small text-truncate">@latestTicket.Message</div>
+
+                        @if (!string.IsNullOrEmpty(latestTicket.AdminReply) && !latestTicket.IsReplySeen)
+                        {
+                            <span id="ticket-badge-@latestTicket.Id" class="position-absolute top-0 end-0 badge bg-danger">New Reply</span>
+                        }
+
+                        <!-- Modal for Latest Ticket -->
+                        <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="ticketModalLabel">Ticket: @latestTicket.Subject</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Submitted:</strong> @latestTicket.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                        <p><strong>Your Message:</strong></p>
+                                        <p>@latestTicket.Message</p>
+
+                                        <hr />
+
+                                        <p><strong>Admin Reply:</strong></p>
+                                        @if (!string.IsNullOrEmpty(latestTicket.AdminReply))
+                                        {
+                                            <p>@latestTicket.AdminReply</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No reply yet.</p>
+                                        }
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No support tickets.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- Notifications -->
+    <div class="col">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-bell me-2"></i>Notifications</span>
+                @if (Model.Notifications?.Count > 1)
+                {
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationsModal">View All</button>
+                }
+            </div>
+            <div class="card-body">
+                @if (Model.Notifications?.Any() == true)
+                {
+                    var latest = Model.Notifications.OrderByDescending(n => n.CreatedAt).First();
+
+                    <div class="clickable-card position-relative mb-3"
+                         style="cursor: pointer;"
+                         data-bs-toggle="modal"
+                         data-bs-target="#notifModal-@latest.Id"
+                         onclick="markNotificationAsRead(@latest.Id)">
+
+                        <div class="fw-bold">@latest.Title</div>
+                        <div class="text-muted small">@latest.CreatedAt.ToString("MMM dd, yyyy")</div>
+                        <div class="small text-truncate">@latest.Message</div>
+
+                        @if (!latest.IsRead)
+                        {
+                            <span id="notif-badge-@latest.Id" class="position-absolute top-0 end-0 badge bg-danger">New</span>
+                        }
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="notifModal-@latest.Id" tabindex="-1" aria-labelledby="notifModalLabel-@latest.Id" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="notifModalLabel-@latest.Id">@latest.Title</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="text-muted small">@latest.CreatedAt.ToString("MMM dd, yyyy")</p>
+                                    <p>@latest.Message</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No notifications.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+
+<!-- Modals partial: you need to create this partial with IDs billsModal, paymentsModal, supportModal, notificationsModal -->
+@await Html.PartialAsync("_DashboardModals", Model)
+
+
+    @section Scripts {
+        <script>
+            const toggleBtn = document.getElementById('darkModeToggle');
+            const body = document.body;
+
+            // Load saved mode
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i> Light Mode';
+            }
+
+            toggleBtn.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                if (body.classList.contains('dark-mode')) {
+                    localStorage.setItem('darkMode', 'enabled');
+                    toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i> Light Mode';
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                    toggleBtn.innerHTML = '<i class="bi bi-moon-fill"></i> Dark Mode';
+                }
+            });
+        </script>
+
+        <script>
+            const sidebar = document.querySelector('aside.sidebar');
+            const backdrop = document.querySelector('.overlay-backdrop');
+            const toggleButton = document.getElementById('sidebarToggle');
+
+            if (toggleButton && sidebar && backdrop) {
+                toggleButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                    backdrop.classList.toggle('show');
+                });
+
+                backdrop.addEventListener('click', () => {
+                    sidebar.classList.remove('show');
+                    backdrop.classList.remove('show');
+                });
+            }
+        </script>
+
+
+
+        <script>
+            // Mark Support Ticket reply as seen
+            function markReplySeen(ticketId) {
+                fetch('/Supports/MarkReplyAsSeen', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ticketId)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const badge = document.getElementById('ticket-badge-' + ticketId);
+                        if (badge) {
+                            badge.remove();
+                            console.log("Reply badge removed for ticket:", ticketId);
+                        } else {
+                            console.warn("No reply badge found for ticket", ticketId);
+                        }
+                    } else {
+                        console.error("Failed to mark reply as seen.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking reply as seen:', error);
+                });
+            }
+
+            // Mark Notification as read
+            function markNotificationAsRead(id) {
+                fetch('/Notifications/MarkAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(id)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const badge = document.getElementById('notif-badge-' + id);
+                        if (badge) {
+                            badge.remove();
+                            console.log("Notification badge removed for ID:", id);
+                        } else {
+                            console.warn("No notification badge found for ID", id);
+                        }
+                    } else {
+                        console.error("Failed to mark notification as read.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as read:', error);
+                });
+            }
+        </script>
+    }
